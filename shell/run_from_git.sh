@@ -26,11 +26,10 @@ fi
 
 # Request the file from the GitHub repo
 echo 'Getting script from GitHub...'
-curl -G -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
+curl -G -v -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/" \
+    "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$script" \
     -o "$outfile" \
-    --data-urlencode $script
     
 if [ -e "$outfile" ]; then
     echo "$outfile downloaded successfully"
