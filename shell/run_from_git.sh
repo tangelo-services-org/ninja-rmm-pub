@@ -26,9 +26,11 @@ RunFromGit() {
 
     # Request the file from the GitHub repo
     echo 'Getting script from GitHub...'
+    urlencoded_path=$(printf "%s" "$script" | jq -s -R -r @uri)
+    echo $urlencoded_path
     curl -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$(echo -n $script | jq -s -R -r @uri)" \
+        "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$urlencoded_path" \
         -o "$outfile"
     if [ -e "$outfile" ]; then
         echo "$outfile downloaded successfully"
@@ -42,7 +44,7 @@ RunFromGit() {
     bash "./$outfile" 2>&1 
     echo "$outfile done, cleaning up..."
 
-    # Clean up
+    Clean up
     cd "$ninja_dir" || exit
     rm -rf "$ninja_dir/$automation_name"
     if [ -e "$ninja_dir/$automation_name" ]; then
