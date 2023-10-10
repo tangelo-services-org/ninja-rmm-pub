@@ -26,7 +26,7 @@ fi
 
 # Request the file from the GitHub repo
 echo 'Getting script from GitHub...'
-urlencoded_path=$(printf "%s" "$script" | jq -s -R -r @uri)
+urlencoded_path=$(printf "%s" "$script" | /usr/local/bin/jq -s -R -r @uri)
 echo $urlencoded_path
 curl -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
