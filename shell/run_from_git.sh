@@ -8,7 +8,7 @@ outfile=$2  # File to execute (probably same as above sans dirs)
 automation_name=$3      # Used for temp dir names
 
 # Preconfigured variables
-ninja_dir='/tmp/NinjaRMMAgent'
+ninja_dir='/Applications/NinjaRMMAgent/programfiles'
 
 # Set up temp dirs
 mkdir -p "$ninja_dir/$automation_name"
