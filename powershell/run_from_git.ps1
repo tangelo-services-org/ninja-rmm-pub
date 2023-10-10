@@ -15,7 +15,9 @@ function RunFromGit
     # Get the install script from github
     # Start by getting the PAT from S3 to access our private repo
     Write-Host 'Getting personal access token from S3...'
-    $pat_url = 'https://tangelo-ninja-repo.s3.ap-southeast-2.amazonaws.com/ninja_rmm_github.pat'
+    # pat URL encoded with b64 here just to avoid getting grabbed by scrapers
+    $pat_url_b64 = "aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=="
+    $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
     $pat = Invoke-WebRequest -Uri $pat_url -UseBasicParsing | Select-Object -ExpandProperty Content
     $pat = [Text.Encoding]::UTF8.GetString($pat)
     $headers = @{

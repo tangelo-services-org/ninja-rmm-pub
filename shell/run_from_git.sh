@@ -16,7 +16,8 @@ cd "$ninja_dir/$automation_name" || exit
 
 # Get the personal access token from S3
 echo 'Getting personal access token from S3...'
-pat_url='https://tangelo-ninja-repo.s3.ap-southeast-2.amazonaws.com/ninja_rmm_github.pat'
+pat_url_b64='aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=='
+pat_url=$(echo -n $pat_url_b64 | base64 -d)
 pat=$(curl -s "$pat_url")
 if [[ $pat == github_pat* ]]; then
     echo 'Got personal access token'
