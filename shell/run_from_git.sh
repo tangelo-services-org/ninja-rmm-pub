@@ -29,8 +29,9 @@ echo 'Getting script from GitHub...'
 curl -G -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/" \
+    -o "$outfile" \
     --data-urlencode $script
-    -o "$outfile"
+    
 if [ -e "$outfile" ]; then
     echo "$outfile downloaded successfully"
 else
