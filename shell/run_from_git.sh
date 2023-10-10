@@ -26,11 +26,10 @@ fi
 
 # Request the file from the GitHub repo
 echo 'Getting script from GitHub...'
-urlencoded_path=$(printf "%s" "$script" | /usr/local/bin/jq -s -R -r @uri)
-echo $urlencoded_path
-curl -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
+curl -G -s -H "Authorization: Bearer $pat" -H "Accept: application/vnd.github.v3.raw" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$urlencoded_path" \
+    "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/" \
+    --data-urlencode $script
     -o "$outfile"
 if [ -e "$outfile" ]; then
     echo "$outfile downloaded successfully"
@@ -44,7 +43,7 @@ chmod +x "$outfile"
 bash "./$outfile" 2>&1 
 echo "$outfile done, cleaning up..."
 
-Clean up
+# Clean up
 cd "$ninja_dir" || exit
 rm -rf "$ninja_dir/$automation_name"
 if [ -e "$ninja_dir/$automation_name" ]; then
