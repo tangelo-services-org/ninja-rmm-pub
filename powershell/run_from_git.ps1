@@ -1,0 +1,66 @@
+function RunFromGit
+{
+    param (
+        [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
+        [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
+        [Parameter(Mandatory = $true)][string]$automation_name      # Used for temp dir names
+    )
+    # Preconfigured variables:
+    $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
+
+    # Set up temp dirs
+    New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force
+    Set-Location "$ninja_dir\$automation_name"
+
+    # Get the install script from github
+    # Start by getting the PAT from S3 to access our private repo
+    Write-Host 'Getting personal access token from S3...'
+    $pat_url = 'https://tangelo-ninja-repo.s3.ap-southeast-2.amazonaws.com/ninja_rmm_github.pat'
+    $pat = Invoke-WebRequest -Uri $pat_url -UseBasicParsing | Select-Object -ExpandProperty Content
+    $pat = [Text.Encoding]::UTF8.GetString($pat)
+    $headers = @{
+        'Accept'               = 'application/vnd.github.v3.raw'
+        'Authorization'        = "Bearer $pat"
+        'X-GitHub-Api-Version' = '2022-11-28'
+    }
+    if ($pat -like 'github_pat*')
+    {
+        Write-Host 'Got personal access token'
+    }
+    else
+    {
+        Write-Host 'Did not get personal access token'
+    }
+
+    # Now we have the PAT, request the file from the repo
+    Write-Host 'Getting script from github...'
+    Invoke-WebRequest -Uri "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
+    if (Test-Path $outfile)
+    {
+        Write-Host "$outfile downloaded successfully"
+    }
+    else
+    {
+        Write-Host "$outfile not downloaded"
+    }
+
+    # We've got the script, now to run it...
+    Write-Host "Running $outfile ..."
+    & ".\$outfile" 2>&1 | Out-String
+    Write-Host "$outfile done, cleaning up..."
+
+    # Clean up 
+    Set-Location "$ninja_dir"
+    rm "$ninja_dir\$automation_name" -Force -Recurse
+    if (Test-Path "$ninja_dir\$automation_name")
+    {
+        Write-Host "Failed to clean up $ninja_dir\$automation_name"
+    }
+    else
+    {
+        Write-Host "Cleaned up $ninja_dir\$automation_name"
+    }
+}
+
+
+
