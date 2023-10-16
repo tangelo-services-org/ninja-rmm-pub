@@ -3,8 +3,15 @@ function RunFromGit
     param (
         [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
         [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
-        [Parameter(Mandatory = $true)][string]$automation_name      # Used for temp dir names
+        [Parameter(Mandatory = $true)][string]$automation_name   , # Used for temp dir names
+        [parameter][string]$github_api_url
     )
+
+    if (-not $github_api_url)
+    {
+        $github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents'
+    }
+    
     # Preconfigured variables:
     $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
 
@@ -16,7 +23,7 @@ function RunFromGit
     # Start by getting the PAT from S3 to access our private repo
     Write-Host 'Getting personal access token from S3...'
     # pat URL encoded with b64 here just to avoid getting grabbed by scrapers
-    $pat_url_b64 = "aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=="
+    $pat_url_b64 = 'aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=='
     $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
     $pat = Invoke-WebRequest -Uri $pat_url -UseBasicParsing | Select-Object -ExpandProperty Content
     $pat = [Text.Encoding]::UTF8.GetString($pat)
@@ -36,7 +43,7 @@ function RunFromGit
 
     # Now we have the PAT, request the file from the repo
     Write-Host 'Getting script from github...'
-    Invoke-WebRequest -Uri "https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
+    Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
     if (Test-Path $outfile)
     {
         Write-Host "$outfile downloaded successfully"
