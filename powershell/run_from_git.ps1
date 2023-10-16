@@ -3,14 +3,9 @@ function RunFromGit
     param (
         [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
         [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
-        [Parameter(Mandatory = $true)][string]$automation_name   , # Used for temp dir names
-        [parameter][string]$github_api_url
+        [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
+        [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents'
     )
-
-    if (-not $github_api_url)
-    {
-        $github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents'
-    }
     
     # Preconfigured variables:
     $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
