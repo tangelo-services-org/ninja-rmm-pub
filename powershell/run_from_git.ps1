@@ -4,8 +4,14 @@ function RunFromGit
         [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
         [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
         [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
-        [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents'
+        [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents',
+        [bool]$load_helpers = $false
     )
+
+    if ($load_helpers)
+    {
+        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/tangelo-services-org/ninja-rmm-pub/main/powershell/helpers/load_helpers.ps1'))
+    }
     
     # Preconfigured variables:
     $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
