@@ -24,5 +24,7 @@ function CheckInstalled
     #     Write-Host "$softwareName $softwareVersion already installed, exiting..." 
     #     Return 0
     # }
+
+    Return 1
 }
 
