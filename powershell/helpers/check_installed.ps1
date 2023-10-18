@@ -18,11 +18,11 @@ function CheckInstalled
     }
 
     # Check if the software is installed, if it is - exit the script
-    $software = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name='$softwareName' AND Version='$softwareVersion'"
-    if ( $software )
-    {
-        Write-Host "$softwareName $softwareVersion already installed, exiting..." 
-        Return 0
-    }
+    # $software = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name='$softwareName' AND Version='$softwareVersion'"
+    # if ( $software )
+    # {
+    #     Write-Host "$softwareName $softwareVersion already installed, exiting..." 
+    #     Return 0
+    # }
 }
 
