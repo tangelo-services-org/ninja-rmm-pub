@@ -10,8 +10,9 @@ function RunFromGit
 
     if ($load_helpers)
     {
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/tangelo-services-org/ninja-rmm-pub/main/powershell/helpers/load_helpers.ps1'))
+        Invoke-Expression (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/tangelo-services-org/ninja-rmm-pub/main/powershell/helpers/load_helpers.ps1' -UseBasicParsing).Content
     }
+
     
     # Preconfigured variables:
     $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
