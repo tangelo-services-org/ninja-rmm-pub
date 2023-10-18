@@ -5,7 +5,7 @@ function RunFromGit
         [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
         [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
         [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents',
-        [bool]$load_helpers = $false
+        [bool]$load_helpers = $true
     )
 
     if ($load_helpers)
