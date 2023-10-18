@@ -10,7 +10,7 @@
 
 $base_url = 'https://raw.githubusercontent.com/tangelo-services-org/ninja-rmm-pub/main/powershell/helpers'
 
-$helper_files = @('check_installed.ps1')
+$helper_files = @('check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1')
 
 foreach ($file in $helper_files)
 {
