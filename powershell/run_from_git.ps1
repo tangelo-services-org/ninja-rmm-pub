@@ -68,6 +68,7 @@ function RunFromGit
     # We've got the script, now to run it...
     Write-Host "Running $outfile ..."
     & ".\$outfile" 2>&1 | Out-String
+    $result = $LASTEXITCODE
     Write-Host "$outfile done, cleaning up..."
 
     # Clean up 
@@ -81,6 +82,7 @@ function RunFromGit
     {
         Write-Host "Cleaned up $ninja_dir\$automation_name"
     }
+    return $result
 }
 
 
