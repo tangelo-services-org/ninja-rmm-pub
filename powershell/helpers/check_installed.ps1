@@ -9,7 +9,7 @@ function CheckInstalled
     Write-Host "Checking if $softwareName $softwareVersion is installed..."
     foreach ($hive in @('HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall' ))
     {
-        $item = Get-ChildItem -LiteralPath $hive | Get-ItemProperty | Where-Object { $_.DisplayName -eq $softwareName -and $_.DisplayVersion -eq $softwareVersion }
+        $item = Get-ChildItem -LiteralPath $hive | Get-ItemProperty | Where-Object { $_.DisplayName -eq $softwareName -and ($_.DisplayVersion -eq $softwareVersion -or [string]::IsNullOrEmpty($_.DisplayVersion)) }
         if ($item)
         {
             Write-Host "$softwareName $softwareVersion already installed" 
