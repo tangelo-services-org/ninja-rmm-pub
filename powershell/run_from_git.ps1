@@ -67,7 +67,8 @@ function RunFromGit
 
     # We've got the script, now to run it...
     Write-Host "Running $outfile ..."
-    & ".\$outfile" 2>&1 | Out-String
+    $x = & ".\$outfile" 2>&1 | Out-String
+    Write-Host "output: $x"
     Write-Host "$outfile done, cleaning up..."
 
     # Clean up 
