@@ -12,7 +12,7 @@ function CheckInstalled
         $item = Get-ChildItem -LiteralPath $hive | Get-ItemProperty | Where-Object { $_.DisplayName -eq $softwareName -and $_.DisplayVersion -eq $softwareVersion }
         if ($item)
         {
-            Write-Host "$softwareName $softwareVersion already installed, exiting..." 
+            Write-Host "$softwareName $softwareVersion already installed" 
             Return 0
         }
     }
