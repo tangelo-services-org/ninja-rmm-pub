@@ -3,7 +3,7 @@ function CheckInstalled
 
     param(
         [Parameter(Mandatory = $true)][string]$softwareName,
-        [Parameter(Mandatory = $true)][string]$softwareVersion
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion
     )
     
     Write-Host "Checking if $softwareName $softwareVersion is installed..."
