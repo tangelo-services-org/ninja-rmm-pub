@@ -6,8 +6,18 @@ function RunFromGit
         [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
         [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents',
         [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org',
-        [bool]$load_helpers = $true
+        [bool]$load_helpers = $true,
+        [bool]$quiet = $true
     )
+
+    if ($quiet)
+    {
+        $informationAction = 'Ignore'
+    }
+    else
+    {
+        $informationAction = 'Continue'
+    }
 
     if ($load_helpers)
     {
@@ -18,7 +28,7 @@ function RunFromGit
 
         foreach ($file in $helper_files)
         {
-            Write-Host "Sourcing $file..."
+            Write-Host "Sourcing $file..." -InformationAction $informationAction
             . ([Scriptblock]::Create((Invoke-WebRequest -Uri "$base_url/$file" -UseBasicParsing).Content))
         }
     }
@@ -33,7 +43,7 @@ function RunFromGit
 
     # Get the install script from github
     # Start by getting the PAT from S3 to access our private repo
-    Write-Host 'Getting personal access token from S3...'
+    Write-Host 'Getting personal access token from S3...' -InformationAction $informationAction
     # pat URL encoded with b64 here just to avoid getting grabbed by scrapers
     $pat_url_b64 = 'aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=='
     $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
@@ -46,11 +56,11 @@ function RunFromGit
     }
     if ($pat -like 'github_pat*')
     {
-        Write-Host 'Got personal access token'
+        Write-Host 'Got personal access token' -InformationAction $informationAction
     }
     else
     {
-        Write-Host 'Did not get personal access token'
+        Write-Host 'Did not get personal access token' -InformationAction $informationAction
     }
 
     # Now we have the PAT, request the file from the repo
@@ -58,29 +68,29 @@ function RunFromGit
     Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
     if (Test-Path $outfile)
     {
-        Write-Host "$outfile downloaded successfully"
+        Write-Host "$outfile downloaded successfully" -InformationAction $informationAction
     }
     else
     {
-        Write-Host "$outfile not downloaded"
+        Write-Host "$outfile not downloaded" -InformationAction $informationAction
     }
 
     # We've got the script, now to run it...
-    Write-Host "Running $outfile ..."
+    Write-Host "Running $outfile ..." -InformationAction $informationAction
     & ".\$outfile" 2>&1 | Out-String
     $result = $LASTEXITCODE
-    Write-Host "$outfile done, cleaning up..."
+    Write-Host "$outfile done, cleaning up..." -InformationAction $informationAction
 
     # Clean up 
     Set-Location "$ninja_dir"
     rm "$ninja_dir\$automation_name" -Force -Recurse
     if (Test-Path "$ninja_dir\$automation_name")
     {
-        Write-Host "Failed to clean up $ninja_dir\$automation_name"
+        Write-Host "Failed to clean up $ninja_dir\$automation_name" -InformationAction $informationAction
     }
     else
     {
-        Write-Host "Cleaned up $ninja_dir\$automation_name"
+        Write-Host "Cleaned up $ninja_dir\$automation_name" -InformationAction $informationAction
     }
     return $result
 }
