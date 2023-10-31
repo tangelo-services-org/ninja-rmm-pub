@@ -5,7 +5,7 @@ function SetEnvVar
         [Parameter(Mandatory = $true)][string]$value
     )
 
-    Write-Host "Setting env var $variable to $value"
+    Write-Host "Setting env var $key to $value"
     [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Machine)
     
 }
