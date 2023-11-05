@@ -72,7 +72,7 @@ function RunFromGit
 
     # Clean up 
     Set-Location "$ninja_dir"
-    rm "$ninja_dir\$automation_name" -Force -Recurse
+    Remove-Item "$ninja_dir\$automation_name" -Force -Recurse
     if (Test-Path "$ninja_dir\$automation_name")
     {
         Write-Host "Failed to clean up $ninja_dir\$automation_name"
