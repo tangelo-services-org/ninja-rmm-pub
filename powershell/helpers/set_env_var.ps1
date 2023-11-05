@@ -2,10 +2,17 @@ function SetEnvVar
 {
     param (
         [Parameter(Mandatory = $true)][string]$key,
-        [Parameter(Mandatory = $true)][string]$value
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$value
     )
+    if ($value -eq '' )
+    {
+        Write-Host "Deleting env var $key"
+    }
+    else
+    {
+        Write-Host "Setting env var $key to $value"
 
-    Write-Host "Setting env var $variable to $value"
+    }
     [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Machine)
     
 }
