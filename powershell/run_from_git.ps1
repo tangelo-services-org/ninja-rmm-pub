@@ -53,7 +53,7 @@ function RunFromGit
         'X-GitHub-Api-Version' = '2022-11-28'
     }
 
-    $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers | ConvertFrom-Json
+    $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -UseBasicParsing -Headers $headers | ConvertFrom-Json
 
     $script_list = @() # Treat as an array even if we only end up with one script at a time
 
@@ -97,7 +97,7 @@ function RunFromGit
 
         # Now we have the PAT, request the file from the repo
         Write-Host "Getting $script from github..."
-        Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
+        Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile -UseBasicParsing
         if (Test-Path $outfile)
         {
             Write-Host "$outfile downloaded successfully"
