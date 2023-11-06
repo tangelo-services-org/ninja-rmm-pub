@@ -4,9 +4,10 @@ function RunFromGit
         [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
         [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
         [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
-        [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents',
-        [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org',
-        [bool]$load_helpers = $true
+        [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents', # If you are using a proxy change this
+        [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org', # If you are using a proxy change this
+        [bool]$load_helpers = $true,
+        [bool]$user_mode = $false # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
     )
 
     if ($load_helpers)
@@ -25,7 +26,14 @@ function RunFromGit
 
     
     # Preconfigured variables:
-    $ninja_dir = 'C:\ProgramData\NinjaRMMAgent'
+    if ($user_mode)
+    {
+        $ninja_dir = "$env:LOCALAPPDATA\Temp" # In usermode ProgramData is not writeable by most users
+    }
+    else
+    {
+        $ninja_dir = 'C:\ProgramData\NinjaRMMAgent' # Otherwise use this dir
+    }
 
     # Set up temp dirs
     New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force
