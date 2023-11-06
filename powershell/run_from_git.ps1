@@ -1,3 +1,6 @@
+
+
+
 function RunFromGit
 {
     param (
@@ -74,7 +77,7 @@ function RunFromGit
     {
         
         $outfile = Split-Path -Path $script -Leaf
-        $automation_name = [System.IO.Path]::GetFileNameWithoutExtension($outfile) -replace ' ', '_'
+        $automation_name = Format-InvalidPathCharacters -path $outfile
         # Set up temp dirs
         New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force | Out-Null
         Set-Location "$ninja_dir\$automation_name"
@@ -129,4 +132,17 @@ function RunFromGit
 }
 
 
+function Format-InvalidPathCharacters
+{
+    param (
+        [string]$path
+    )
 
+    # Define a regex pattern to match non-standard characters
+    $invalidCharsPattern = '[\\/:*?"<>|]'
+
+    # Replace non-standard characters with an underscore
+    $escapedPath = [regex]::Replace($path, $invalidCharsPattern, '_')
+
+    return $escapedPath
+}
