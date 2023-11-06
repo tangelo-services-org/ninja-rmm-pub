@@ -76,9 +76,7 @@ function RunFromGit
         $outfile = Split-Path -Path $script -Leaf
         $automation_name = [System.IO.Path]::GetFileNameWithoutExtension($outfile) -replace ' ', '_'
         # Set up temp dirs
-        Write-Host "Script: $script Outfile: $outfile Automation: $automation_name" 
-
-        New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force
+        New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force | Out-Null
         Set-Location "$ninja_dir\$automation_name"
         # Download url
         $headers = @{
