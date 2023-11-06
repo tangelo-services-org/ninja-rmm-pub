@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "RunFromGit Test",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "${workspaceFolder}\\powershell\\run_from_git.ps1",
+      "args": [
+        "; RunFromGit",
+        "-script",
+        "cfx_scripts/workstation_deploy",
+        "-outfile",
+        "test",
+        "-automation_name",
+        "test"
+      ]
+    }
+  ]
+}
