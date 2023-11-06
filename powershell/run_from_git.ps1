@@ -2,13 +2,15 @@ function RunFromGit
 {
     param (
         [Parameter(Mandatory = $true)][string]$script, # Path of file in github repo
-        [Parameter(Mandatory = $true)][string]$outfile, # File to execute (probably same as above sans dirs)
-        [Parameter(Mandatory = $true)][string]$automation_name, # Used for temp dir names
+        $outfile, # File to execute (probably same as above sans dirs)
+        $automation_name, # Used for temp dir names
         [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents', # If you are using a proxy change this
         [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org', # If you are using a proxy change this
         [bool]$load_helpers = $true,
         [bool]$user_mode = $false # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
     )
+
+    $prev_cwd = Get-Location
 
     if ($load_helpers)
     {
@@ -35,10 +37,6 @@ function RunFromGit
         $ninja_dir = 'C:\ProgramData\NinjaRMMAgent' # Otherwise use this dir
     }
 
-    # Set up temp dirs
-    New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force
-    Set-Location "$ninja_dir\$automation_name"
-
     # Get the install script from github
     # Start by getting the PAT from S3 to access our private repo
     Write-Host 'Getting personal access token from S3...'
@@ -47,50 +45,89 @@ function RunFromGit
     $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
     $pat = Invoke-WebRequest -Uri $pat_url -UseBasicParsing | Select-Object -ExpandProperty Content
     $pat = [Text.Encoding]::UTF8.GetString($pat)
+
+    # Check whether we are getting a file or a folder
     $headers = @{
-        'Accept'               = 'application/vnd.github.v3.raw'
+        'Accept'               = 'application/vnd.github.v3.object'
         'Authorization'        = "Bearer $pat"
         'X-GitHub-Api-Version' = '2022-11-28'
     }
-    if ($pat -like 'github_pat*')
+
+    $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers | ConvertFrom-Json
+
+    $script_list = @() # Treat as an array even if we only end up with one script at a time
+
+    if ($response.type -eq 'dir')
     {
-        Write-Host 'Got personal access token'
+        # If we get a directory, we will want to download and run every script within it
+        foreach ($entry in $response.entries)
+        {
+            $script_list += $entry.path
+        }
     }
-    else
+    elseif ($response.type -eq 'file')
     {
-        Write-Host 'Did not get personal access token'
+        $script_list += $response.path
+    } 
+
+    foreach ($script in $script_list)
+    {
+        
+        $outfile = Split-Path -Path $script -Leaf
+        $automation_name = [System.IO.Path]::GetFileNameWithoutExtension($outfile) -replace ' ', '_'
+        # Set up temp dirs
+        Write-Host "Script: $script Outfile: $outfile Automation: $automation_name" 
+
+        New-Item -ItemType Directory "$ninja_dir\$automation_name" -Force
+        Set-Location "$ninja_dir\$automation_name"
+        # Download url
+        $headers = @{
+            'Accept'               = 'application/vnd.github.v3.raw'
+            'Authorization'        = "Bearer $pat"
+            'X-GitHub-Api-Version' = '2022-11-28'
+        }
+        if ($pat -like 'github_pat*')
+        {
+            Write-Host 'Got personal access token'
+        }
+        else
+        {
+            Write-Host 'Did not get personal access token'
+        }
+
+        # Now we have the PAT, request the file from the repo
+        Write-Host "Getting $script from github..."
+        Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
+        if (Test-Path $outfile)
+        {
+            Write-Host "$outfile downloaded successfully"
+        }
+        else
+        {
+            Write-Host "$outfile not downloaded"
+        }
+
+        # We've got the script, now to run it...
+        Write-Host "Running $outfile ..."
+        & ".\$outfile" 2>&1 | Out-String
+        $result = $LASTEXITCODE
+        Write-Host "$outfile done, cleaning up..."
+
+        # Clean up 
+        Set-Location "$ninja_dir"
+        Remove-Item "$ninja_dir\$automation_name" -Force -Recurse
+        if (Test-Path "$ninja_dir\$automation_name")
+        {
+            Write-Host "Failed to clean up $ninja_dir\$automation_name"
+        }
+        else
+        {
+            Write-Host "Cleaned up $ninja_dir\$automation_name"
+        }
+        Write-Host $result
     }
 
-    # Now we have the PAT, request the file from the repo
-    Write-Host 'Getting script from github...'
-    Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile
-    if (Test-Path $outfile)
-    {
-        Write-Host "$outfile downloaded successfully"
-    }
-    else
-    {
-        Write-Host "$outfile not downloaded"
-    }
-
-    # We've got the script, now to run it...
-    Write-Host "Running $outfile ..."
-    & ".\$outfile" 2>&1 | Out-String
-    $result = $LASTEXITCODE
-    Write-Host "$outfile done, cleaning up..."
-
-    # Clean up 
-    Set-Location "$ninja_dir"
-    Remove-Item "$ninja_dir\$automation_name" -Force -Recurse
-    if (Test-Path "$ninja_dir\$automation_name")
-    {
-        Write-Host "Failed to clean up $ninja_dir\$automation_name"
-    }
-    else
-    {
-        Write-Host "Cleaned up $ninja_dir\$automation_name"
-    }
-    return $result
+    Set-Location $prev_cwd
 }
 
 
