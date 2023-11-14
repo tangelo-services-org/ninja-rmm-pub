@@ -7,7 +7,8 @@ function RunFromGit
         [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents', # If you are using a proxy change this
         [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org', # If you are using a proxy change this
         [bool]$load_helpers = $true,
-        [bool]$user_mode = $false # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
+        [bool]$user_mode = $false, # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
+        [string]$pub_branch = 'main' # used to swap to different test branches if you want
     )
 
     if ($load_helpers)
@@ -15,7 +16,7 @@ function RunFromGit
         # If you want to add more helpers, include their names here and upload them to the 
         # powershell/helpers/ folder for the public github repo
         $helper_files = @('check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1', 'uninstall_program.ps1')
-        $base_url = "$github_raw_url/ninja-rmm-pub/fuzzy_install_check/powershell/helpers"
+        $base_url = "$github_raw_url/ninja-rmm-pub/$pub_branch/powershell/helpers"
 
         foreach ($file in $helper_files)
         {
