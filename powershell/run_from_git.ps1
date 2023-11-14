@@ -15,7 +15,7 @@ function RunFromGit
         # If you want to add more helpers, include their names here and upload them to the 
         # powershell/helpers/ folder for the public github repo
         $helper_files = @('check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1', 'uninstall_program.ps1')
-        $base_url = "$github_raw_url/ninja-rmm-pub/main/powershell/helpers"
+        $base_url = "$github_raw_url/ninja-rmm-pub/fuzzy_install_check/powershell/helpers"
 
         foreach ($file in $helper_files)
         {
