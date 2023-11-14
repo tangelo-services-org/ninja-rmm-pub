@@ -23,14 +23,14 @@ function CheckInstalled
         # Exit if there is no version specified
         if ([string]::IsNullOrEmpty($softwareVersion))
         {
-            Write-Host "$softwareName (no version) already installed" 
+            Write-Host "$($item.DisplayName) (no version) already installed" 
             Return 0
         }
         
         # Match the display version exactly
         if ($item.DisplayVersion -like $softwareVersion)
         {
-            Write-Host "$softwareName $softwareVersion already installed" 
+            Write-Host "$($item.DisplayName) $($item.DisplayVersion) already installed" 
             Return 0
         }
 
@@ -39,7 +39,7 @@ function CheckInstalled
         {
             if ($matchGreater -and ([version]$item.DisplayVersion -ge [version]$softwareVersion))
             {
-                Write-Host "$softwareName $($item.DisplayVersion)  already installed" 
+                Write-Host "$($item.DisplayName) $($item.DisplayVersion)  already installed" 
             }
         }
         catch [System.Management.Automation.RuntimeException]
