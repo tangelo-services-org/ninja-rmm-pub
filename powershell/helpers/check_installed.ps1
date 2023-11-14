@@ -8,6 +8,8 @@ function CheckInstalled
         [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion # If you want to match higher versions, end with ^ i.e. 1.0.2^
     )
 
+    Write-Host "Checking if $softwareName $softwareVersion is installed..."
+
     $matchGreater = $False
     if (-not [string]::IsNullOrEmpty($softwareVersion))
     {
@@ -15,7 +17,6 @@ function CheckInstalled
         $softwareVersion = $softwareVersion.TrimEnd('^')     # Trim out the ^ at the end of the version string so it doesn't mess with comparisons
     }
 
-    Write-Host "Checking if $softwareName $softwareVersion is installed..."
     foreach ($hive in @('HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall' ))
     {
         $item = Get-ChildItem -LiteralPath $hive | Get-ItemProperty | Where-Object { $_.DisplayName -like $softwareName }
