@@ -84,7 +84,7 @@ function RunFromGit
     }
     catch
     {
-        Write-Host $_
+        Write-Host $_.Exception
         Write-Host "Got error running $outfile, continuing..."
     }
         
