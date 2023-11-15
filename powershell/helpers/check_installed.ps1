@@ -41,11 +41,12 @@ function CheckInstalled
             if ($matchGreater -and ([version]$item.DisplayVersion -ge [version]$softwareVersion))
             {
                 Write-Host "$($item.DisplayName) $($item.DisplayVersion)  already installed" 
+                Return 0
             }
         }
         catch [System.Management.Automation.RuntimeException]
         {
-            Write-Host "Error converting to [version] $_"
+            Write-Host "Error converting to [version] $($_.Exception)"
         }     
 
         # TODO: matching on the hidden version number for comparisons etc, this is: $item.Version
