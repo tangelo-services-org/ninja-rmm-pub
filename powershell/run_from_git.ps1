@@ -84,6 +84,7 @@ function RunFromGit
     }
     catch
     {
+        $result = 1 # Set result to 1 so when we return at the end it will still error in Ninja
         Write-Host $_.Exception
         Write-Host "Got error running $outfile, continuing..."
     }
