@@ -75,6 +75,7 @@ function RunFromGit
     }
 
     # We've got the script, now to run it...
+    $process_error = $false
     try
     {
         Write-Host "Running $outfile ..."
@@ -84,9 +85,8 @@ function RunFromGit
     }
     catch
     {
-        $result = 1 # Set result to 1 so when we return at the end it will still error in Ninja
-        Write-Host $_.Exception
-        Write-Host "Got error running $outfile, continuing..."
+        # We will throw any errors later, after we have cleaned up dirs
+        $process_error = $_.Exception 
     }
         
        
@@ -102,7 +102,15 @@ function RunFromGit
     {
         Write-Host "Cleaned up $ninja_dir\$automation_name"
     }
-    return $result
+
+    if ($process_error)
+    {
+        throw $process_error
+    }
+    else
+    {
+        return $result
+    }
 }
 
 
