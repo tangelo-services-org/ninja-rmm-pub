@@ -74,10 +74,19 @@ function RunFromGit
     }
 
     # We've got the script, now to run it...
-    Write-Host "Running $outfile ..."
-    & ".\$outfile" 2>&1 | Out-String
-    $result = $LASTEXITCODE
-    Write-Host "$outfile done, cleaning up..."
+    try
+    {
+        Write-Host "Running $outfile ..."
+        & ".\$outfile" 2>&1 | Out-String
+        $result = $LASTEXITCODE
+        Write-Host "$outfile done, cleaning up..."
+    }
+    catch
+    {
+        Write-Host "Got error running $outfile, continuing..."
+    }
+        
+       
 
     # Clean up 
     Set-Location "$ninja_dir"
