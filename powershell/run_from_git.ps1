@@ -10,7 +10,8 @@ function RunFromGit
         [string]$github_api_url = 'https://api.github.com/repos/tangelo-services-org/ninja-rmm/contents', # If you are using a proxy change this
         [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org', # If you are using a proxy change this
         [bool]$load_helpers = $true,
-        [bool]$user_mode = $false # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
+        [bool]$user_mode = $false, # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
+        [string]$pub_branch = 'main' # used to swap to different test branches if you want
     )
 
     $prev_cwd = Get-Location
@@ -20,7 +21,7 @@ function RunFromGit
         # If you want to add more helpers, include their names here and upload them to the 
         # powershell/helpers/ folder for the public github repo
         $helper_files = @('check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1', 'uninstall_program.ps1')
-        $base_url = "$github_raw_url/ninja-rmm-pub/main/powershell/helpers"
+        $base_url = "$github_raw_url/ninja-rmm-pub/$pub_branch/powershell/helpers"
 
         foreach ($file in $helper_files)
         {
@@ -109,10 +110,21 @@ function RunFromGit
         }
 
         # We've got the script, now to run it...
-        Write-Host "Running $outfile ..."
-        & ".\$outfile" 2>&1 | Out-String
-        $result = $LASTEXITCODE
-        Write-Host "$outfile done, cleaning up..."
+        $process_error = $false
+        try
+        {
+            Write-Host "Running $outfile ..."
+            & ".\$outfile" 2>&1 | Out-String
+            $result = $LASTEXITCODE
+            Write-Host "$outfile done, cleaning up..."
+        }
+        catch
+        {
+            # We will throw any errors later, after we have cleaned up dirs
+            $process_error = $_.Exception 
+        }
+        
+       
 
         # Clean up 
         Set-Location "$ninja_dir"
@@ -129,6 +141,14 @@ function RunFromGit
     }
 
     Set-Location $prev_cwd
+    if ($process_error)
+    {
+        throw $process_error
+    }
+    else
+    {
+        return $result
+    }
 }
 
 
