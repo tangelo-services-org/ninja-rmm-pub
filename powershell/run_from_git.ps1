@@ -44,7 +44,7 @@ function RunFromGit
     # Start by getting the PAT from S3 to access our private repo
     Write-Host 'Getting personal access token from S3...'
     # pat URL encoded with b64 here just to avoid getting grabbed by scrapers
-    $pat_url_b64 = 'aHR0cHM6Ly90YW5nZWxvLW5pbmphLXJlcG8uczMuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbS9uaW5qYV9ybW1fZ2l0aHViLnBhdA=='
+    $pat_url_b64 = 'aHR0cHM6Ly9taW5pby50YW5nZWxvLmNvbS90YW5nZWxvLW5pbmphLXJlcG8vbmluamFfcm1tX2dpdGh1Yi5wYXQ='
     $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
     $pat = Invoke-WebRequest -Uri $pat_url -UseBasicParsing | Select-Object -ExpandProperty Content
     $pat = [Text.Encoding]::UTF8.GetString($pat)
