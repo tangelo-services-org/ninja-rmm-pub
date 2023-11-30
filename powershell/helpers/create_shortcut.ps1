@@ -6,7 +6,7 @@ function CreateShortcut
         [Parameter(Mandatory = $true)][string]$targetPath
     )
     Write-Host "Creating shortcut at $shortcutPath to $targetPath"
-    New-Item -ItemType Directory -Path [System.IO.Path]::GetDirectoryName($targetPath) -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path "$([System.IO.Path]::GetDirectoryName($shortcutPath))" -Force -ErrorAction SilentlyContinue
 
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
