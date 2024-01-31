@@ -2,7 +2,8 @@ function UninstallProgram
 {
     param(
         [Parameter(Mandatory = $true)][string]$softwareName,
-        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion,
+        [AllowEmptyString()][string]$uninstallArguments = '/S'
     )
     if ((CheckInstalled -softwareName $softwareName -softwareversion $softwareVersion) -ne 0)
     {
@@ -41,28 +42,19 @@ function UninstallProgram
                 $parts = $uninstallString -split '\.exe', 2
                 $exe = $parts[0].Trim('"') + '.exe'
                 $arguments = $parts[1].Trim('"')
-                 
 
-                # Check if the uninstall command contains "/s" for silent uninstall
-                if ($arguments -like '*/s' -or $arguments -like '*/S')
+                if ($arguments)
                 {
-                    # If it's already silent, execute it
-                    # Write-Host "Uninstalling... $uninstallString"
-                    # Invoke-Expression $uninstallString
-                    
+                    Write-Host "Using arguments found in registry: $exe $arguments"
+                    $process = Start-Process "$exe" -ArgumentList $arguments -PassThru -Wait
+                    Write-Host $process
                 }
                 else
                 {
-                    # If not silent, add the "/s" and execute
-                    $arguments = $arguments + ' /S'
-                    # '--mode unattended'
-                    # Write-Host "Uninstalling... $silentUninstallString"
-                    # Invoke-Expression $silentUninstallString
+                    Write-Host "No arguments found in registry, using: $exe $uninstallArguments"
+                    $process = Start-Process "$exe" -ArgumentList $uninstallArguments -PassThru -Wait
                 }
-                Write-Host "exe $exe"
-                Write-Host "args $arguments"
-                $process = Start-Process "$exe" -ArgumentList $arguments -PassThru -Wait
-                Write-Host $process
+
                 break
             }
         }
