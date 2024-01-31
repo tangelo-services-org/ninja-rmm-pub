@@ -40,12 +40,34 @@ function UninstallProgram
         # Write-Host "$($program.DisplayName) $($program.DisplayVersion)"
         if ($program.DisplayName -eq $softwareName -and $program.DisplayVersion -eq $softwareVersion)
         {
-            $uninstallString = $program.UninstallString
+            Write-Host $key
+            if ($program.QuietUninstallString)
+            {
+                $uninstallString = $program.QuietUninstallString
+            }
+            else
+            {
+                $uninstallString = $program.UninstallString
+            }
+            
             if ($uninstallString)
             {
-                $parts = $uninstallString -split '\.exe', 2
-                $exe = $parts[0].Trim('"') + '.exe'
-                $arguments = $parts[1].Trim('"')
+                # Handle msiexec strings a bit differently to normal .exe's
+                if ($uninstallString -contains 'msiexec')
+                {
+                    $uninstallString.Replace('/I', '/x') # Sometimes they have the install flag specified instead of uninstall
+                    if (-not ($uninstallString -contains '/qn')) # Sometimes they dont have the silent args specified
+                    {
+                        $uninstallString = $uninstallString + ' /qn'
+                    }
+                }
+                else
+                {
+                    $parts = $uninstallString -split '\.exe', 2
+                    $exe = $parts[0].Trim('"') + '.exe'
+                    $arguments = $parts[1].Trim('"')
+                }
+                
 
                 if ($arguments)
                 {
