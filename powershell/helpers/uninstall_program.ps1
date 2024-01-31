@@ -3,7 +3,11 @@ function UninstallProgram
     param(
         [Parameter(Mandatory = $true)][string]$softwareName,
         [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion,
-        [AllowEmptyString()][string]$uninstallArguments = '/S'
+        [AllowEmptyString()][string]$uninstallArguments
+        # Note, if you specify $uninstallArguments, and there are also args found in the registry,
+        # it will concat and use both.
+        # Otherwise if you dont specify, and it cant find in registry, it will default to /S
+        # If you do specify and it finds none in registry, it will use what you specified
     )
     if ((CheckInstalled -softwareName $softwareName -softwareversion $softwareVersion) -ne 0)
     {
@@ -45,12 +49,20 @@ function UninstallProgram
 
                 if ($arguments)
                 {
+                    if ($uninstallArguments)
+                    {
+                        $arguments = "$uninstallArguments $arguments"
+                    }
                     Write-Host "Using arguments found in registry: $exe $arguments"
                     $process = Start-Process "$exe" -ArgumentList $arguments -PassThru -Wait
                     Write-Host $process
                 }
                 else
                 {
+                    if (-not $uninstallArguments)
+                    {
+                        $uninstallArguments = '/S'
+                    }
                     Write-Host "No arguments found in registry, using: $exe $uninstallArguments"
                     $process = Start-Process "$exe" -ArgumentList $uninstallArguments -PassThru -Wait
                 }
