@@ -20,7 +20,7 @@ function RunFromGit
     {
         # If you want to add more helpers, include their names here and upload them to the 
         # powershell/helpers/ folder for the public github repo
-        $helper_files = @('create_shortcut.ps1', 'check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1', 'uninstall_program.ps1')
+        $helper_files = @('create_shortcut.ps1', 'check_installed.ps1', 'set_env_var.ps1', 'set_reg_key.ps1', 'uninstall_program.ps1', 'log_write.ps1')
         $base_url = "$github_raw_url/ninja-rmm-pub/$pub_branch/powershell/helpers"
 
         foreach ($file in $helper_files)
@@ -116,7 +116,7 @@ function RunFromGit
             LogWrite "Running $outfile ..." -writehost $true
             & ".\$outfile" 2>&1 | Out-String
             $result = $LASTEXITCODE
-            LogWrite "$outfile done, cleaning up..." 
+            LogWrite "$outfile done, cleaning up..." -writehost $true
         }
         catch
         {
@@ -174,13 +174,3 @@ if (-not (Test-Path $LogFile))
     New-Item $Logfile
 }
 
-Function LogWrite
-{
-    Param ([string]$logstring, [boolean]$writehost = $false)
-
-    if ($writehost)
-    {
-        Write-Host $logstring
-    }
-    Add-Content $Logfile -Value "[$($(Get-Date).ToString('yyyyMMddHHmm'))]: $logstring"
-}

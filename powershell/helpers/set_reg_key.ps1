@@ -7,7 +7,7 @@ function SetRegKey
         [Parameter(Mandatory = $true)][string]$type
     )
 
-    Write-Host "Setting registry key: $path\$name to $value"
+    LogWrite "Setting registry key: $path\$name to $value"
     # Create the registry key if it doesn't exist
     if (-not (Test-Path $path))
     {

@@ -8,7 +8,7 @@ function CheckInstalled
         [Parameter(Mandatory = $true)][AllowEmptyString()][string]$softwareVersion # If you want to match higher versions, end with ^ i.e. 1.0.2^
     )
 
-    Write-Host "Checking if $softwareName $softwareVersion is installed..."
+    LogWrite "Checking if $softwareName $softwareVersion is installed..."
 
     $matchGreater = $False
     if (-not [string]::IsNullOrEmpty($softwareVersion))
@@ -24,14 +24,14 @@ function CheckInstalled
         # Exit if there is no version specified
         if ([string]::IsNullOrEmpty($softwareVersion))
         {
-            Write-Host "$($item.DisplayName) (no version) already installed" 
+            LogWrite "$($item.DisplayName) (no version) already installed" 
             Return 0
         }
         
         # Match the display version exactly
         if ($item.DisplayVersion -like $softwareVersion)
         {
-            Write-Host "$($item.DisplayName) $($item.DisplayVersion) already installed" 
+            LogWrite "$($item.DisplayName) $($item.DisplayVersion) already installed" 
             Return 0
         }
 
@@ -40,20 +40,20 @@ function CheckInstalled
         {
             if ($matchGreater -and ([version]$item.DisplayVersion -ge [version]$softwareVersion))
             {
-                Write-Host "$($item.DisplayName) $($item.DisplayVersion)  already installed" 
+                LogWrite "$($item.DisplayName) $($item.DisplayVersion)  already installed" 
                 Return 0
             }
         }
         catch [System.Management.Automation.RuntimeException]
         {
-            Write-Host "Error converting to [version] $($_.Exception)"
+            LogWrite "Error converting to [version] $($_.Exception)"
         }     
 
         # TODO: matching on the hidden version number for comparisons etc, this is: $item.Version
       
     }
 
-    Write-Host "$softwareName $softwareVersion not installed"
+    LogWrite "$softwareName $softwareVersion not installed"
     Return 1
 }
 

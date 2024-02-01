@@ -6,11 +6,11 @@ function SetEnvVar
     )
     if ($value -eq '' )
     {
-        Write-Host "Deleting env var $key"
+        LogWrite "Deleting env var $key"
     }
     else
     {
-        Write-Host "Setting env var $key to $value"
+        LogWrite "Setting env var $key to $value"
 
     }
     [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Machine)

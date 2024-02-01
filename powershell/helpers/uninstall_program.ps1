@@ -13,12 +13,12 @@ function UninstallProgram
     {
         # Software is not installed
         # Installer commands here
-        Write-Host "Tried to uninstall $softwareName $softwareVersion but it is not installed"
+        LogWrite "Tried to uninstall $softwareName $softwareVersion but it is not installed"
         return 1
     }
     else
     {
-        Write-Host 'Proceeding with uninstall...'
+        LogWrite 'Proceeding with uninstall...'
     }
 
     # Registry path where uninstall information is stored
@@ -37,10 +37,10 @@ function UninstallProgram
     foreach ($key in $uninstallKeys)
     {
         $program = Get-ItemProperty -Path $key.PSPath
-        # Write-Host "$($program.DisplayName) $($program.DisplayVersion)"
+        # LogWrite "$($program.DisplayName) $($program.DisplayVersion)"
         if ($program.DisplayName -eq $softwareName -and $program.DisplayVersion -eq $softwareVersion)
         {
-            Write-Host $key
+            LogWrite $key
             if ($program.QuietUninstallString)
             {
                 $uninstallString = $program.QuietUninstallString
@@ -75,9 +75,9 @@ function UninstallProgram
                     {
                         $arguments = "$uninstallArguments $arguments"
                     }
-                    Write-Host "Using arguments found in registry: $exe $arguments"
+                    LogWrite "Using arguments found in registry: $exe $arguments"
                     $process = Start-Process "$exe" -ArgumentList $arguments -PassThru -Wait
-                    Write-Host $process
+                    LogWrite $process
                 }
                 else
                 {
@@ -85,7 +85,7 @@ function UninstallProgram
                     {
                         $uninstallArguments = '/S'
                     }
-                    Write-Host "No arguments found in registry, using: $exe $uninstallArguments"
+                    LogWrite "No arguments found in registry, using: $exe $uninstallArguments"
                     $process = Start-Process "$exe" -ArgumentList $uninstallArguments -PassThru -Wait
                 }
 
@@ -97,7 +97,7 @@ function UninstallProgram
     # If the program is not found
     if (!$uninstallString)
     {
-        Write-Host 'Program not found or uninstall information not available in the Registry.'
+        LogWrite 'Program not found or uninstall information not available in the Registry.'
     }
 
 
