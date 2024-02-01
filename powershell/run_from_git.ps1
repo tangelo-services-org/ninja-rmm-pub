@@ -169,6 +169,11 @@ function Format-InvalidPathCharacters
 
 $Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
 
+if (-not (Test-Path $LogFile))
+{
+    New-Item $Logfile
+}
+
 Function LogWrite
 {
     Param ([string]$logstring, [boolean]$writehost = $false)
