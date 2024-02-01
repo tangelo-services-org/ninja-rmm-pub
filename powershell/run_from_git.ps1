@@ -182,5 +182,5 @@ Function LogWrite
     {
         Write-Host $logstring
     }
-    Add-Content $Logfile -Value "[$($Date.ToString('yyyyMMddHHmm'))]: $logstring"
+    Add-Content $Logfile -Value "[$($(Get-Date).ToString('yyyyMMddHHmm'))]: $logstring"
 }
