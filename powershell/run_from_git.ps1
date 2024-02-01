@@ -43,7 +43,7 @@ function RunFromGit
 
     # Get the install script from github
     # Start by getting the PAT from S3 to access our private repo
-    Write-Host 'Getting personal access token from S3...'
+    LogWrite 'Getting personal access token from S3...'
     # pat URL encoded with b64 here just to avoid getting grabbed by scrapers
     $pat_url_b64 = 'aHR0cHM6Ly9taW5pby50YW5nZWxvLmNvbS90YW5nZWxvLW5pbmphLXJlcG8vbmluamFfcm1tX2dpdGh1Yi5wYXQ='
     $pat_url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pat_url_b64))
@@ -90,33 +90,33 @@ function RunFromGit
         }
         if ($pat -like 'github_pat*')
         {
-            Write-Host 'Got personal access token'
+            LogWrite 'Got personal access token'
         }
         else
         {
-            Write-Host 'Did not get personal access token'
+            LogWrite 'Did not get personal access token'
         }
 
         # Now we have the PAT, request the file from the repo
-        Write-Host "Getting $script from github..."
+        LogWrite "Getting $script from github..."
         Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile -UseBasicParsing
         if (Test-Path $outfile)
         {
-            Write-Host "$outfile downloaded successfully"
+            LogWrite "$outfile downloaded successfully"
         }
         else
         {
-            Write-Host "$outfile not downloaded"
+            LogWrite "$outfile not downloaded"
         }
 
         # We've got the script, now to run it...
         $process_error = $false
         try
         {
-            Write-Host "Running $outfile ..."
+            LogWrite "Running $outfile ..." -writehost $true
             & ".\$outfile" 2>&1 | Out-String
             $result = $LASTEXITCODE
-            Write-Host "$outfile done, cleaning up..."
+            LogWrite "$outfile done, cleaning up..." 
         }
         catch
         {
@@ -131,13 +131,13 @@ function RunFromGit
         Remove-Item "$ninja_dir\$automation_name" -Force -Recurse
         if (Test-Path "$ninja_dir\$automation_name")
         {
-            Write-Host "Failed to clean up $ninja_dir\$automation_name"
+            LogWrite "Failed to clean up $ninja_dir\$automation_name"
         }
         else
         {
-            Write-Host "Cleaned up $ninja_dir\$automation_name"
+            LogWrite "Cleaned up $ninja_dir\$automation_name"
         }
-        Write-Host $result
+        LogWrite $result -writehost $true
     }
 
     Set-Location $prev_cwd
@@ -165,4 +165,17 @@ function Format-InvalidPathCharacters
     $escapedPath = [regex]::Replace($path, $invalidCharsPattern, '_')
 
     return $escapedPath
+}
+
+$Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
+
+Function LogWrite
+{
+    Param ([string]$logstring, [boolean]$writehost = $false)
+
+    if ($writehost)
+    {
+        Write-Host $logstring
+    }
+    Add-Content $Logfile -Value "[$($Date.ToString('yyyyMMddHHmm'))]: $logstring"
 }
