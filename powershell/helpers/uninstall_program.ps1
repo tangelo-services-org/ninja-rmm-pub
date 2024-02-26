@@ -77,7 +77,7 @@ function UninstallProgram
                     }
                     LogWrite "Using arguments found in registry: $exe $arguments"
                     $process = Start-Process "$exe" -ArgumentList $arguments -PassThru -Wait
-                    LogWrite $process
+                    LogWrite $process.ExitCode
                 }
                 else
                 {
