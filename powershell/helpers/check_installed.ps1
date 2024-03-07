@@ -29,7 +29,7 @@ function CheckInstalled
         }
         
         # Match the display version exactly
-        if ($item.DisplayVersion -like $softwareVersion)
+        if (($item.DisplayVersion -like $softwareVersion) -and (-not [string]::IsNullOrEmpty($item.DisplayName)))
         {
             LogWrite "$($item.DisplayName) $($item.DisplayVersion) already installed" 
             Return 0
