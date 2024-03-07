@@ -22,7 +22,7 @@ function CheckInstalled
         $item = Get-ChildItem -LiteralPath $hive | Get-ItemProperty | Where-Object { $_.DisplayName -like $softwareName }
 
         # Exit if there is no version specified
-        if ([string]::IsNullOrEmpty($softwareVersion))
+        if ([string]::IsNullOrEmpty($softwareVersion) -and (-not [string]::IsNullOrEmpty($item.DisplayName)))
         {
             LogWrite "$($item.DisplayName) (no version) already installed" 
             Return 0
