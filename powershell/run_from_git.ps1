@@ -74,6 +74,9 @@ function RunFromGit
         $script_list += $response.path
     } 
 
+    # Object for holding scripts and their results
+    $script_results = @()
+
     foreach ($script in $script_list)
     {
         
@@ -123,6 +126,11 @@ function RunFromGit
             # We will throw any errors later, after we have cleaned up dirs
             $process_error = $_.Exception 
         }
+
+        $script_results += @{
+            'script' = $script
+            'result' = "$result $process_error"
+        }
         
        
 
@@ -139,6 +147,8 @@ function RunFromGit
         }
         LogWrite $result -writehost $true
     }
+
+    Write-Host $script_results
 
     Set-Location $prev_cwd
     if ($process_error)
@@ -167,10 +177,14 @@ function Format-InvalidPathCharacters
     return $escapedPath
 }
 
-$Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
-
-if (-not (Test-Path $LogFile))
+if (-not $env:NINJA_LOG_FILE)
 {
-    New-Item $Logfile
+    $Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
+
+    if (-not (Test-Path $LogFile))
+    {
+        New-Item $Logfile
+    }
 }
+
 
