@@ -25,7 +25,7 @@ function RunFromGit
 
         foreach ($file in $helper_files)
         {
-            Write-Host "Sourcing $file..."
+            # Write-Host "Sourcing $file..."
             . ([Scriptblock]::Create((Invoke-WebRequest -Uri "$base_url/$file" -UseBasicParsing).Content))
         }
     }
@@ -61,6 +61,9 @@ function RunFromGit
 
     $script_list = @() # Treat as an array even if we only end up with one script at a time
 
+    # Object for holding scripts and their results
+    $script_results = @()
+
     if ($response.type -eq 'dir')
     {
         # If we get a directory, we will want to download and run every script within it
@@ -73,9 +76,6 @@ function RunFromGit
     {
         $script_list += $response.path
     } 
-
-    # Object for holding scripts and their results
-    $script_results = @()
 
     foreach ($script in $script_list)
     {
@@ -116,10 +116,10 @@ function RunFromGit
         $process_error = $false
         try
         {
-            LogWrite "Running $outfile ..." -writehost $true
+            LogWrite "Running $outfile ..." -writehost $false
             & ".\$outfile" 2>&1 | Out-String
             $result = $LASTEXITCODE
-            LogWrite "$outfile done, cleaning up..." -writehost $true
+            LogWrite "$outfile done, cleaning up..." -writehost $false
         }
         catch
         {
@@ -127,10 +127,11 @@ function RunFromGit
             $process_error = $_.Exception 
         }
 
-        $script_results += @{
-            'script' = $script
+        $script_results += [PSCustomObject]@{
+            'script' = "$script"
             'result' = "$result $process_error"
         }
+
         
        
 
@@ -145,10 +146,10 @@ function RunFromGit
         {
             LogWrite "Cleaned up $ninja_dir\$automation_name"
         }
-        LogWrite $result -writehost $true
+        LogWrite $result -writehost $false
     }
 
-    Write-Host $script_results
+    $script_results | Format-Table
 
     Set-Location $prev_cwd
     if ($process_error)
@@ -157,7 +158,8 @@ function RunFromGit
     }
     else
     {
-        return $result
+        # return $result
+        return $script_results
     }
 }
 
