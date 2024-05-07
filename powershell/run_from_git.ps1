@@ -129,11 +129,9 @@ function RunFromGit
 
         $script_results += [PSCustomObject]@{
             'script' = "$script"
-            'result' = "$result $process_error"
-        }
-
-        
-       
+            'result' = "$result"
+            'error'  = "$process_error"
+        }     
 
         # Clean up 
         Set-Location "$ninja_dir"
@@ -149,7 +147,7 @@ function RunFromGit
         LogWrite $result -writehost $false
     }
 
-    $script_results | Format-Table
+    $script_results | Format-Table | Out-String | Write-Host
 
     Set-Location $prev_cwd
     if ($process_error)
