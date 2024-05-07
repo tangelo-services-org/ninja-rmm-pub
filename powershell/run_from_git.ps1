@@ -156,8 +156,7 @@ function RunFromGit
     }
     else
     {
-        # return $result
-        # return $script_results
+
         return 0
     }
 }
