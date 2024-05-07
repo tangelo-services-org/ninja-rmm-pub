@@ -25,7 +25,7 @@ function RunFromGit
 
         foreach ($file in $helper_files)
         {
-            Write-Host "Sourcing $file..."
+            # Write-Host "Sourcing $file..."
             . ([Scriptblock]::Create((Invoke-WebRequest -Uri "$base_url/$file" -UseBasicParsing).Content))
         }
     }
@@ -60,6 +60,9 @@ function RunFromGit
     $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -UseBasicParsing -Headers $headers | ConvertFrom-Json
 
     $script_list = @() # Treat as an array even if we only end up with one script at a time
+
+    # Object for holding scripts and their results
+    $script_results = @()
 
     if ($response.type -eq 'dir')
     {
@@ -113,18 +116,22 @@ function RunFromGit
         $process_error = $false
         try
         {
-            LogWrite "Running $outfile ..." -writehost $true
+            LogWrite "Running $outfile ..." -writehost $false
             & ".\$outfile" 2>&1 | Out-String
             $result = $LASTEXITCODE
-            LogWrite "$outfile done, cleaning up..." -writehost $true
+            LogWrite "$outfile done, cleaning up..." -writehost $false
         }
         catch
         {
             # We will throw any errors later, after we have cleaned up dirs
             $process_error = $_.Exception 
         }
-        
-       
+
+        $script_results += [PSCustomObject]@{
+            'script' = "$script"
+            'result' = "$result"
+            'error'  = "$process_error"
+        }     
 
         # Clean up 
         Set-Location "$ninja_dir"
@@ -137,8 +144,10 @@ function RunFromGit
         {
             LogWrite "Cleaned up $ninja_dir\$automation_name"
         }
-        LogWrite $result -writehost $true
+        LogWrite $result -writehost $false
     }
+
+    $script_results | Format-Table | Out-String | Write-Host
 
     Set-Location $prev_cwd
     if ($process_error)
@@ -147,7 +156,8 @@ function RunFromGit
     }
     else
     {
-        return $result
+
+        return 0
     }
 }
 
@@ -167,10 +177,14 @@ function Format-InvalidPathCharacters
     return $escapedPath
 }
 
-$Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
-
-if (-not (Test-Path $LogFile))
+if (-not $env:NINJA_LOG_FILE)
 {
-    New-Item $Logfile
+    $Logfile = 'C:\ProgramData\NinjaRMMAgent\run_from_git_logs.txt'
+
+    if (-not (Test-Path $LogFile))
+    {
+        New-Item $Logfile
+    }
 }
+
 
