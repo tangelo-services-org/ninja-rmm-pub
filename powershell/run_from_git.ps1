@@ -11,7 +11,8 @@ function RunFromGit
         [string]$github_raw_url = 'https://raw.githubusercontent.com/tangelo-services-org', # If you are using a proxy change this
         [bool]$load_helpers = $true,
         [bool]$user_mode = $false, # If running as logged on user instead of system user, will change working dir to $env:LOCALAPPDATA
-        [string]$pub_branch = 'main' # used to swap to different test branches if you want
+        [string]$pub_branch = 'main', # used to swap to different test branches if you want
+        [string]$priv_branch = 'main' # used to change the branch of the main config repo
     )
 
     $prev_cwd = Get-Location
@@ -57,7 +58,7 @@ function RunFromGit
         'X-GitHub-Api-Version' = '2022-11-28'
     }
 
-    $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -UseBasicParsing -Headers $headers | ConvertFrom-Json
+    $response = Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))?ref=$priv_branch" -UseBasicParsing -Headers $headers | ConvertFrom-Json
 
     $script_list = @() # Treat as an array even if we only end up with one script at a time
 
@@ -102,7 +103,7 @@ function RunFromGit
 
         # Now we have the PAT, request the file from the repo
         LogWrite "Getting $script from github..."
-        Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))" -Headers $headers -OutFile $outfile -UseBasicParsing
+        Invoke-WebRequest -Uri "$github_api_url/$([system.uri]::EscapeDataString($script))?ref=$priv_branch" -Headers $headers -OutFile $outfile -UseBasicParsing
         if (Test-Path $outfile)
         {
             LogWrite "$outfile downloaded successfully"
