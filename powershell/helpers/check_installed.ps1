@@ -38,7 +38,10 @@ function CheckInstalled
         # Try casting the version to a [version] and then if requested matching upwards
         try
         {
-            if ($matchGreater -and ([version]$item.DisplayVersion -ge [version]$softwareVersion))
+            # Replace any non-period punctuation to assist conversion
+            $sanitizedDisplayVersion = ($item.DisplayVersion -replace '-', '.')
+            $sanitizedSoftwareVersion = ($softwareVersion -replace '-', '.')
+            if ($matchGreater -and ([version]$sanitizedDisplayVersion -ge [version]$sanitizedSoftwareVersion))
             {
                 LogWrite "$($item.DisplayName) $($item.DisplayVersion)  already installed" 
                 Return 0
